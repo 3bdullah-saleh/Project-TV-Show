@@ -1,54 +1,43 @@
-// Godal: render one episode in the user interface
-
-
+/**
+ * get all episodes then map through each episode
+ */
 function setup() {
   const allEpisodes = getAllEpisodes();
   allEpisodes.map(makePageForEpisodes);
   renderFooter();
 }
-
+/**
+ * create episode's title, season number, episode number, image, summary
+ */
 function makePageForEpisodes(episodeList) {
-  const rootElem = document.getElementById("root");
-  // render the title including name, season, and episode number
-  const { name, season, number } = episodeList;
-  const header = document.createElement("h3");
-  header.textContent = `${ name } - S${ season.toString().padStart(2, "0") }E${ number.toString().padStart(2, "0") }`;
-  rootElem.appendChild(header);
-  // render image of the episode
-  const { image: {medium} } =  episodeList;
-  const image = document.createElement("img");
-  image.src = medium;
-  rootElem.appendChild(image);
-  // render the summary text of the episode
-  const { summary } = episodeList;
-  const episodeSummary = document.createElement("p");
-  episodeSummary.innerHTML = summary;
-  rootElem.appendChild(episodeSummary);
+  // cloned the template from the HTML file
+  const episodeCard = document
+    .getElementById("episode-card-template")
+    .content.cloneNode(true);
+  // get the key-value pair using array destructuring
+  const { name, season, number, image: {medium}, summary } = episodeList;
+  // add episode header
+  episodeCard.querySelector("h3").textContent = `${name} - S${season
+    .toString()
+    .padStart(2, "0")}E${number.toString().padStart(2, "0")}`;
+  // add episode image
+  episodeCard.querySelector("img").src = medium;
+  // add episode summary
+  episodeCard.querySelector("p").innerHTML = summary;
+  // append the template to the body
+  document.body.appendChild(episodeCard);
 }
-
+/**
+ * create footer
+ */
 function renderFooter() {
   const footer = document.createElement("footer");
   const link = document.createElement("a");
   link.href = "https://www.tvmaze.com/";
-  link.target = "blank"
+  link.target = "_blank";
   link.textContent = "Data originally from TVMaze.com";
   footer.appendChild(link);
-  document.body.appendChild(footer)
+  document.body.appendChild(footer);
 }
 
 window.onload = setup;
-
-
-/*
-1. All episodes must be shown 
-2. For each episode, _at least_ following must be displayed:
-   1. The name of the episode
-   2. The season number
-   3. The episode number
-   4. The medium-sized image for the episode
-   5. The summary text of the episode
-*/
-
-// create an element 
-// append title to that element 
-// append it to the body
