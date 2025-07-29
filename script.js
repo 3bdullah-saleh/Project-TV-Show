@@ -8,7 +8,8 @@ function setup() {
 
 function makePageForEpisodes(episodeList) {
   const rootElem = document.getElementById("root");
-  console.log("🚀 ~ makePageForEpisodes ~ rootElem:", episodeList)
+  console.log("🚀 ~ makePageForEpisodes ~ rootElem:", episodeList);
+  // render the title including name, season, and episode number
   const { name, season, number } = episodeList;
   const header = document.createElement("h3");
   header.textContent = `${ name } - S${ season.toString().padStart(2, "0") }E${ number.toString().padStart(2, "0") }`;
@@ -16,9 +17,13 @@ function makePageForEpisodes(episodeList) {
   // render image of the episode
   const { image: {medium} } =  episodeList;
   const image = document.createElement("img");
-  image.src = medium
+  image.src = medium;
   rootElem.appendChild(image);
-
+  // render the summary text of the episode
+  const { summary } = episodeList;
+  const episodeSummary = document.createElement("p");
+  episodeSummary.innerHTML = summary;
+  rootElem.appendChild(episodeSummary);
 }
 
 window.onload = setup;
@@ -31,6 +36,7 @@ window.onload = setup;
    2. The season number
    3. The episode number
    4. The medium-sized image for the episode
+   5. The summary text of the episode
 */
 
 // create an element 
