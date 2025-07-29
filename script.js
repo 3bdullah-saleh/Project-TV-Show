@@ -8,10 +8,17 @@ function setup() {
 
 function makePageForEpisodes(episodeList) {
   const rootElem = document.getElementById("root");
-  const {name, season, number} = episodeList;
+  console.log("🚀 ~ makePageForEpisodes ~ rootElem:", episodeList)
+  const { name, season, number } = episodeList;
   const header = document.createElement("h3");
-  header.textContent = `${name} - S${season.toString().padStart(2, "0")}E${number.toString().padStart(2, "0")}`;
+  header.textContent = `${ name } - S${ season.toString().padStart(2, "0") }E${ number.toString().padStart(2, "0") }`;
   rootElem.appendChild(header);
+  // render image of the episode
+  const { image: {medium} } =  episodeList;
+  const image = document.createElement("img");
+  image.src = medium
+  rootElem.appendChild(image);
+
 }
 
 window.onload = setup;
