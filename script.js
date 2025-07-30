@@ -15,17 +15,26 @@ function makePageForEpisodes(episodeList) {
     .getElementById("episode-card-template")
     .content.cloneNode(true);
   // get the key-value pair using array destructuring
-  const { name, season, number, image: {medium}, summary } = episodeList;
+  const {
+    name,
+    season,
+    number,
+    image: { medium },
+    summary,
+  } = episodeList;
   // add episode header
   episodeCard.querySelector("h3").textContent = `${name} - S${season
     .toString()
     .padStart(2, "0")}E${number.toString().padStart(2, "0")}`;
   // add episode image
-  episodeCard.querySelector("img").src = medium;
+  const img = episodeCard.querySelector("img");
+  img.src = medium
+  img.alt = `Image for episode ${name}`;;
   // add episode summary
   episodeCard.querySelector("p").innerHTML = summary;
   // append the template to the body
-  document.body.appendChild(episodeCard);
+  const rootElem = document.getElementById("root");
+  rootElem.appendChild(episodeCard);
 }
 /**
  * create footer
