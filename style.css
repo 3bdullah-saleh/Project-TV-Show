@@ -1,3 +1,25 @@
 #root {
-  color: red;
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+  gap: 16px;
+  padding: 20px;
 }
+
+.episode {
+  border: 1px solid #ccc;
+  padding: 10px;
+  box-sizing: content-box;
+  border-radius: 20px;
+  width: 30%;
+  min-width: 250px;
+  background-color: #dbd2d2;
+}
+h3 {
+  border: 1px solid #ccc;
+  padding: 10px;
+  box-sizing: content-box;
+  border-radius: 10px;
+  background-color: bisque;
+}
+
+
