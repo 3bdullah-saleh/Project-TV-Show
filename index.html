@@ -9,6 +9,15 @@
   </head>
 
   <body>
+    <!-- Search + Select + Match count -->
+    <div id="controls">
+      <input type="text" id="search-input" placeholder="Search episodes..." />
+      <select id="episode-select">
+        <option value="all">All Episodes</option>
+      </select>
+      <div id="match-count">Displaying 0 / 0 episodes</div>
+    </div>
+    
     <div id="root"></div>
     <template id="episode-card-template">
       <section class="episode">
