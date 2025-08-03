@@ -28,6 +28,11 @@ function createEpisodeCard(episode) {
   return template;
 }
 
+function updateMatchCount(filteredEpisodes) {
+  const countElem = document.getElementById("match-count");
+  countElem.textContent = `Displaying ${filteredEpisodes.length} / ${state.episodes.length} episodes`;
+}
+
 function render(episodes) {
   const root = document.getElementById("root");
   root.textContent = "";
@@ -38,6 +43,8 @@ function render(episodes) {
   episodes.map(createEpisodeCard).forEach(card => container.appendChild(card));
   root.appendChild(container);
   root.appendChild(renderFooter());
+  
+  updateMatchCount(episodes);
 }
 
 /*
