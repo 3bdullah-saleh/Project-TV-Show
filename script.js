@@ -7,7 +7,9 @@ const state = {
  */
 
 function fetchFilms() {
-   // Fetch the data from the given URL (returns a promise)
+  const root = document.getElementById("root");
+  root.textContent = "Loading episodes, please wait...";
+  // Fetch the data from the given URL (returns a promise)
   return fetch("https://api.tvmaze.com/shows/82/episodes").then(function (
     data
   ) {
@@ -140,7 +142,7 @@ function renderFooter() {
   footer.appendChild(link);
   return footer;
 }
- 
+
 // On load call the fetchFilms function, and when the data is ready,
 // save the episodes into our app's state so we can use it later
 window.onload = fetchFilms().then(function (episodes) {
