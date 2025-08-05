@@ -1,11 +1,25 @@
 const state = {
   episodes: [],
 };
+
+/**
+ * Gets all episodes from TVMaze using a web URL
+ */
+
+function fetchFilms() {
+   // Fetch the data from the given URL (returns a promise)
+  return fetch("https://api.tvmaze.com/shows/82/episodes").then(function (
+    data
+  ) {
+    // Convert the server response into real JSON data (JavaScript objects)
+    return data.json();
+  });
+}
+
 /**
  * get all episodes then map through each episode
  */
 function setup() {
-  state.episodes = getAllEpisodes();
   render(state.episodes);
   setupSearch();
   setupSelect();
@@ -82,7 +96,7 @@ function setupSearch() {
 }
 /**
  * Sets up the episode selection dropdown.
- * 
+ *
  * Populates the dropdown with all episodes formatted as "SxxExx - Episode Name".
  * Adds a change event listener to:
  *  - Render all episodes when "all" is selected.
@@ -114,9 +128,8 @@ function setupSelect() {
     }
   });
 }
-
 /*
- * create footer
+ * Create footer
  */
 function renderFooter() {
   const footer = document.createElement("footer");
@@ -127,5 +140,10 @@ function renderFooter() {
   footer.appendChild(link);
   return footer;
 }
-
-window.onload = setup;
+ 
+// On load call the fetchFilms function, and when the data is ready,
+// save the episodes into our app's state so we can use it later
+window.onload = fetchFilms().then(function (episodes) {
+  state.episodes = episodes; // Store the fetched episodes from the API into the state.episodes array
+  setup(); // Run setup after data is ready
+});
