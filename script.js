@@ -14,7 +14,7 @@ function fetchFilms() {
     data
   ) {
     if (!data.ok) {
-      throw new Error('Failed to load the data');
+      throw new Error("Failed to load the data");
     }
     // Convert the server response into real JSON data (JavaScript objects)
     return data.json();
@@ -148,7 +148,14 @@ function renderFooter() {
 
 // On load call the fetchFilms function, and when the data is ready,
 // save the episodes into our app's state so we can use it later
-window.onload = fetchFilms().then(function (episodes) {
-  state.episodes = episodes; // Store the fetched episodes from the API into the state.episodes array
-  setup(); // Run setup after data is ready
-});
+window.onload = fetchFilms()
+  .then(function (episodes) {
+    if (!episodes) throw new Error("No episodes loaded");
+    state.episodes = episodes; // Store the fetched episodes from the API into the state.episodes array
+    setup(); // Run setup after data is ready
+  })
+  .catch((error) => {
+    const root = document.getElementById("root");
+    root.textContent = "Sorry, there was a problem loading episodes.";
+    console.error(error);
+  });
