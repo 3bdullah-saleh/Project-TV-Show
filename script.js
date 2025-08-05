@@ -13,6 +13,9 @@ function fetchFilms() {
   return fetch("https://api.tvmaze.com/shows/82/episodes").then(function (
     data
   ) {
+    if (!data.ok) {
+      throw new Error('Failed to load the data');
+    }
     // Convert the server response into real JSON data (JavaScript objects)
     return data.json();
   });
