@@ -1,5 +1,9 @@
 const state = {
   episodes: [],
+  shows: [], // This will hold the shows data if needed in the future
+  selectedShow: null, // This will hold the currently selected show if needed
+  selectedEpisode: null, // This will hold the currently selected episode if needed
+  searchTerm: "", // This will hold the current search term for filtering episodes
 };
 
 /**
