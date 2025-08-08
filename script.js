@@ -6,6 +6,22 @@ const state = {
   searchTerm: "", // This will hold the current search term for filtering episodes
 };
 
+
+// Get all shows from TVMaze using a web URL
+function fetchAllShows() {
+  return fetch("https://api.tvmaze.com/shows")
+    .then((res) => {
+      if (!res.ok) throw new Error("Failed to fetch shows");
+      return res.json();
+    }) // Convert the server response into real JSON data (JavaScript objects)
+    .then((shows) => {
+      shows.sort((a, b) =>
+        a.name.toLowerCase().localeCompare(b.name.toLowerCase())
+      );
+      setupShowSelect(shows);
+    });
+}
+
 /**
  * Gets all episodes from TVMaze using a web URL
  */
