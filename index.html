@@ -11,11 +11,17 @@
   <body>
     <!-- Search + Select + Match count -->
     <div id="controls">
-      <input type="text" id="search-input" placeholder="Search episodes..." />
+      <input type="text" id="search-input" placeholder="Search ..." />
+      <label for="episode-select">Select Episode:</label>
       <select id="episode-select">
-        <option value="all">All Episodes</option>
+        <option value="">Select episode</option>
       </select>
-      <div id="match-count">Displaying 0 / 0 episodes</div>
+      <label for="show-select">Select Show:</label>
+      <select id="show-select">
+        <option value=""> Select a show</option>
+        </select>
+
+        <div id="match-count"></div>
     </div>
     
     <div id="root"></div>
