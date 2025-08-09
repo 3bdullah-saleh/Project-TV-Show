@@ -1,6 +1,6 @@
 const state = {
   episodes: [],
-  shows: [], // This will hold the shows data if needed in the future
+  shows: {}, // This will hold the shows data if needed in the future
   selectedShow: null, // This will hold the currently selected show if needed
   selectedEpisode: null, // This will hold the currently selected episode if needed
   searchTerm: "", // This will hold the current search term for filtering episodes
@@ -22,23 +22,60 @@ function fetchAllShows() {
     });
 }
 
-/**
- * Gets all episodes from TVMaze using a web URL
- */
+// Populate the show dropdown
+ 
+function setupShowSelect(shows) {
+  const select = document.getElementById("show-select");
+  select.innerHTML = `<option value="">Select a show...</option>`;
 
-function fetchFilms() {
+  shows.forEach((show) => {
+    const option = document.createElement("option");
+    option.value = show.id;
+    option.textContent = show.name;
+    select.appendChild(option);
+
+    state.shows[show.id] = {
+      name: show.name,
+      episodes: null,
+    };
+  });
+// cache the shows in the state
+  select.addEventListener("change", (e) => {
+    const showId = e.target.value;
+    if (!showId) return;
+    handleShowChange(showId);
+  });
+}
+
+// Handle the change event when a show is selected
+function handleShowChange(showId) {
   const root = document.getElementById("root");
   root.textContent = "Loading episodes, please wait...";
-  // Fetch the data from the given URL (returns a promise)
-  return fetch("https://api.tvmaze.com/shows/82/episodes").then(function (
-    data
-  ) {
-    if (!data.ok) {
-      throw new Error("Failed to load the data");
-    }
-    // Convert the server response into real JSON data (JavaScript objects)
-    return data.json();
-  });
+
+  const cached = state.shows[showId];
+
+  if (cached.episodes) {
+    state.episodes = cached.episodes;
+    setup();
+  } else {
+    fetch(`https://api.tvmaze.com/shows/${showId}/episodes`)
+      .then((res) => {
+        if (!res.ok) throw new Error("Failed to fetch episodes");
+        return res.json();
+      })
+      .then((episodes) => {
+        state.shows[showId].episodes = episodes;
+        state.episodes = episodes;
+        setup();
+      })
+      .catch((err) => {
+        root.textContent = "Failed to load episodes.";
+        console.error(err);
+      });
+  }
+  // Reset search and episode dropdown
+  document.getElementById("search-input").value = "";
+  document.getElementById("episode-select").innerHTML = `<option value="all">All episodes</option>`;
 }
 
 /**
@@ -129,7 +166,8 @@ function setupSearch() {
  */
 function setupSelect() {
   const select = document.getElementById("episode-select");
-
+  select.innerHTML = `<option value="all">All Episodes</option>`;
+  
   // Populate dropdown
   state.episodes.forEach((ep) => {
     const option = document.createElement("option");
@@ -168,14 +206,14 @@ function renderFooter() {
 
 // On load call the fetchFilms function, and when the data is ready,
 // save the episodes into our app's state so we can use it later
-window.onload = fetchFilms()
-  .then(function (episodes) {
-    if (!episodes) throw new Error("No episodes loaded");
-    state.episodes = episodes; // Store the fetched episodes from the API into the state.episodes array
-    setup(); // Run setup after data is ready
-  })
+
+// shows are fetched and displayed in a dropdown
+// when a show is selected, its episodes are fetched and displayed
+window.onload = function () {
+  fetchAllShows()
   .catch((error) => {
     const root = document.getElementById("root");
-    root.textContent = "Sorry, there was a problem loading episodes.";
-    console.error(error);
+    root.textContent = "Sorry, failed to lead shows.";
+    console.error(error); 
   });
+} 
