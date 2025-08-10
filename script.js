@@ -6,7 +6,31 @@ const state = {
   searchTerm: "", // This will hold the current search term for filtering episodes
 };
 
+function renderAllShows(shows) {
+  const root = document.getElementById("root");
+  root.textContent = "";
 
+  const container = document.createElement("div");
+  container.className = "shows-container";
+
+  shows.forEach(show => {
+    const card = document.createElement("div");
+    card.className = "show-card";
+    card.innerHTML = `
+      <h3>${show.name}</h3>
+      <img src="${show.image ? show.image.medium : ''}" alt="${show.name}">
+      <p>${show.summary || ''}</p>
+    `;
+    // Optional: clicking a card selects the show
+    card.addEventListener("click", () => {
+      document.getElementById("show-select").value = show.id;
+      handleShowChange(show.id);
+    });
+    container.appendChild(card);
+  });
+
+  root.appendChild(container);
+}
 // Get all shows from TVMaze using a web URL
 function fetchAllShows() {
   return fetch("https://api.tvmaze.com/shows")
@@ -19,6 +43,7 @@ function fetchAllShows() {
         a.name.toLowerCase().localeCompare(b.name.toLowerCase())
       );
       setupShowSelect(shows);
+      renderAllShows(shows); //<-- show all shows by default
     });
 }
 
