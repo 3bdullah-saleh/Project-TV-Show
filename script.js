@@ -45,6 +45,7 @@ function fetchAllShows() {
       );
       setupShowSelect(shows);
       renderAllShows(shows); //<-- show all shows by default
+      setupSearch(); // pass the array to the search
     });
 }
 
@@ -52,7 +53,7 @@ function fetchAllShows() {
 
 function setupShowSelect(shows) {
   const select = document.getElementById("show-select");
-  select.innerHTML = `<option value="all-shows">Select a show...</option>`;
+  select.innerHTML = `<option value="all">Select a show...</option>`;
 
   shows.forEach((show) => {
     const option = document.createElement("option");
@@ -61,20 +62,26 @@ function setupShowSelect(shows) {
     select.appendChild(option);
 
     state.shows[show.id] = {
-      name: show.name,
+      ...show,
       episodes: null,
     };
   });
   // cache the shows in the state
   select.addEventListener("change", (e) => {
     const showId = e.target.value;
-    if (showId === "all-shows") {
-      renderAllShows(shows);
+    if (showId === "all") {
       state.selectedShow = null;
-      return;
+      state.episodes = []; // clear episodes since no show selected
+      renderAllShows(Object.values(state.shows));
+      // Reset episode dropdown and search input
+      document.getElementById(
+        "episode-select"
+      ).innerHTML = `<option value="all">All Episodes</option>`;
+      document.getElementById("search-input").value = "";
+    } else {
+      state.selectedShow = showId;
+      handleShowChange(showId);
     }
-    if (!showId) return;
-    handleShowChange(showId);
   });
 }
 
@@ -97,6 +104,7 @@ function handleShowChange(showId) {
       .then((episodes) => {
         state.shows[showId].episodes = episodes;
         state.episodes = episodes;
+        state.selectedShow = showId;        
         setup();
       })
       .catch((err) => {
@@ -105,6 +113,7 @@ function handleShowChange(showId) {
       });
   }
   // Reset search and episode dropdown
+  state.searchTerm = "";
   document.getElementById("search-input").value = "";
   document.getElementById(
     "episode-select"
@@ -118,7 +127,7 @@ function handleShowChange(showId) {
  */
 function setup() {
   render(state.episodes);
-  setupSearch();
+  // setupSearch();
   setupSelect();
 }
 /**
@@ -174,21 +183,32 @@ function updateMatchCount(filteredEpisodes) {
 /**
  * Sets up the search input event listener.
  *
- * Listens for user input in the search box, filters the episodes
- * based on whether the episode name or summary includes the search term (case-insensitive),
+ * Listens for user input in the search box, filters the episodes and shows
+ * based on their name or summary includes the search term (case-insensitive),
  */
 function setupSearch() {
   const input = document.getElementById("search-input");
-
-  input.addEventListener("input", (e) => {
-    const searchTerm = e.target.value.toLowerCase();
-
-    const filtered = state.episodes.filter(
-      (ep) =>
-        ep.name.toLowerCase().includes(searchTerm) ||
-        ep.summary.toLowerCase().includes(searchTerm)
-    );
-    render(filtered);
+  input.addEventListener("input", (event) => {
+    const searchTerm = event.target.value.toLowerCase();
+    state.searchTerm = searchTerm;
+    if (state.selectedShow !== null && state.selectedShow !== "all") {
+      // Search inside episodes
+      const episodeFiltered = state.episodes.filter(
+        (episode) =>
+          episode.name.toLowerCase().includes(searchTerm) ||
+          (episode.summary?.toLowerCase() || "").includes(searchTerm)
+      );
+      render(episodeFiltered);
+    } else {
+      // Search inside shows
+      const showArray = Object.values(state.shows);
+      const showFiltered = showArray.filter(
+        (show) =>
+          show.name.toLowerCase().includes(searchTerm) ||
+          (show.summary?.toLowerCase() || "").includes(searchTerm)
+      );
+      renderAllShows(showFiltered);
+    }
   });
 }
 /**
