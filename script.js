@@ -9,19 +9,32 @@ const state = {
 function renderAllShows(shows) {
   const root = document.getElementById("root");
   root.textContent = "";
-
+  const showSelect = document.getElementById("show-select");
+  showSelect.options[0].textContent = "Select a show...";
+  // Sort shows alphabetically before rendering
+  const sortedShows = [...shows].sort((a, b) =>
+    a.name.toLowerCase().localeCompare(b.name.toLowerCase())
+  );
   const container = document.createElement("div");
   container.className = "shows-container";
-
-  shows.forEach(show => {
+  sortedShows.forEach((show) => {
     const card = document.createElement("div");
     card.className = "show-card";
     card.innerHTML = `
       <h3>${show.name}</h3>
-      <img src="${show.image ? show.image.medium : ''}" alt="${show.name}">
-      <p>${show.summary || ''}</p>
+      <div class="show-content">
+      <img src="${show.image ? show.image.medium : ""}" alt="${show.name}">
+      <p>${show.summary || ""}</p>
+       </div>
+    <div class="show-details">
+      <p class="genres"><strong>Genres:</strong> ${show.genres.join(", ")}</p>
+      <p class="status"><strong>Status:</strong> ${show.status || "Unknown"}</p>
+      <p class="rating"><strong>Rating:</strong> ${show.rating.average}</p>
+      <p class="runtime"><strong>Runtime:</strong> ${show.runtime}</p>
+    </div>
+  </div>
     `;
-    // Optional: clicking a card selects the show
+    // clicking a card selects the show
     card.addEventListener("click", () => {
       document.getElementById("show-select").value = show.id;
       handleShowChange(show.id);
@@ -30,7 +43,12 @@ function renderAllShows(shows) {
   });
 
   root.appendChild(container);
+  root.appendChild(renderFooter());
+
+  // update count for shows
+  updateMatchCount(shows, "shows");
 }
+
 // Get all shows from TVMaze using a web URL
 function fetchAllShows() {
   return fetch("https://api.tvmaze.com/shows")
@@ -44,14 +62,15 @@ function fetchAllShows() {
       );
       setupShowSelect(shows);
       renderAllShows(shows); //<-- show all shows by default
+      setupSearch(); // pass the array to the search
     });
 }
 
 // Populate the show dropdown
- 
+
 function setupShowSelect(shows) {
   const select = document.getElementById("show-select");
-  select.innerHTML = `<option value="">Select a show...</option>`;
+  select.innerHTML = `<option value="all">Select a show...</option>`;
 
   shows.forEach((show) => {
     const option = document.createElement("option");
@@ -60,15 +79,26 @@ function setupShowSelect(shows) {
     select.appendChild(option);
 
     state.shows[show.id] = {
-      name: show.name,
+      ...show,
       episodes: null,
     };
   });
-// cache the shows in the state
+  // cache the shows in the state
   select.addEventListener("change", (e) => {
     const showId = e.target.value;
-    if (!showId) return;
-    handleShowChange(showId);
+    if (showId === "all") {
+      state.selectedShow = null;
+      state.episodes = []; // clear episodes since no show selected
+      renderAllShows(Object.values(state.shows));
+      // Reset episode dropdown and search input
+      document.getElementById(
+        "episode-select"
+      ).innerHTML = `<option value="all">All Episodes</option>`;
+      document.getElementById("search-input").value = "";
+    } else {
+      state.selectedShow = showId;
+      handleShowChange(showId);
+    }
   });
 }
 
@@ -91,6 +121,7 @@ function handleShowChange(showId) {
       .then((episodes) => {
         state.shows[showId].episodes = episodes;
         state.episodes = episodes;
+        state.selectedShow = showId;
         setup();
       })
       .catch((err) => {
@@ -99,8 +130,13 @@ function handleShowChange(showId) {
       });
   }
   // Reset search and episode dropdown
+  state.searchTerm = "";
   document.getElementById("search-input").value = "";
-  document.getElementById("episode-select").innerHTML = `<option value="all">All episodes</option>`;
+  document.getElementById(
+    "episode-select"
+  ).innerHTML = `<option value="all">All episodes</option>`;
+  const showSelect = document.getElementById("show-select");
+  showSelect.options[0].textContent = "All shows";
 }
 
 /**
@@ -108,7 +144,6 @@ function handleShowChange(showId) {
  */
 function setup() {
   render(state.episodes);
-  setupSearch();
   setupSelect();
 }
 /**
@@ -151,34 +186,53 @@ function render(episodes) {
   root.appendChild(container);
   root.appendChild(renderFooter());
 
-  updateMatchCount(episodes);
+  updateMatchCount(episodes, "episodes");
 }
 
 /**
  * Create and update the match count display element.
  */
-function updateMatchCount(filteredEpisodes) {
+function updateMatchCount(filteredItems, type = "episodes") {
+  console.log(type);
   const countElem = document.getElementById("match-count");
-  countElem.textContent = `Displaying ${filteredEpisodes.length} / ${state.episodes.length} episodes`;
+  if (type == "episodes") {
+    countElem.textContent = `Displaying ${filteredItems.length} / ${state.episodes.length} episodes`;
+  } else {
+    countElem.textContent = `Displaying ${filteredItems.length} / ${
+      Object.keys(state.shows).length
+    } shows`;
+  }
 }
 /**
  * Sets up the search input event listener.
  *
- * Listens for user input in the search box, filters the episodes
- * based on whether the episode name or summary includes the search term (case-insensitive),
+ * Listens for user input in the search box, filters the episodes and shows
+ * based on their name or summary includes the search term (case-insensitive),
  */
 function setupSearch() {
   const input = document.getElementById("search-input");
-
-  input.addEventListener("input", (e) => {
-    const searchTerm = e.target.value.toLowerCase();
-
-    const filtered = state.episodes.filter(
-      (ep) =>
-        ep.name.toLowerCase().includes(searchTerm) ||
-        ep.summary.toLowerCase().includes(searchTerm)
-    );
-    render(filtered);
+  input.addEventListener("input", (event) => {
+    const searchTerm = event.target.value.toLowerCase();
+    state.searchTerm = searchTerm;
+    if (state.selectedShow !== null && state.selectedShow !== "all") {
+      // Search inside episodes
+      const episodeFiltered = state.episodes.filter(
+        (episode) =>
+          episode.name.toLowerCase().includes(searchTerm) ||
+          (episode.summary?.toLowerCase() || "").includes(searchTerm)
+      );
+      render(episodeFiltered);
+    } else {
+      // Search inside shows
+      const showArray = Object.values(state.shows);
+      const showFiltered = showArray.filter(
+        (show) =>
+          show.name.toLowerCase().includes(searchTerm) ||
+          (show.summary?.toLowerCase() || "").includes(searchTerm) ||
+          (show.genres.join("").toLowerCase()).includes(searchTerm)
+      );
+      renderAllShows(showFiltered);
+    }
   });
 }
 /**
@@ -192,7 +246,7 @@ function setupSearch() {
 function setupSelect() {
   const select = document.getElementById("episode-select");
   select.innerHTML = `<option value="all">All Episodes</option>`;
-  
+
   // Populate dropdown
   state.episodes.forEach((ep) => {
     const option = document.createElement("option");
@@ -235,10 +289,9 @@ function renderFooter() {
 // shows are fetched and displayed in a dropdown
 // when a show is selected, its episodes are fetched and displayed
 window.onload = function () {
-  fetchAllShows()
-  .catch((error) => {
+  fetchAllShows().catch((error) => {
     const root = document.getElementById("root");
     root.textContent = "Sorry, failed to lead shows.";
-    console.error(error); 
+    console.error(error);
   });
-} 
+};
