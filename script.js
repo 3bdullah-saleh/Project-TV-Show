@@ -17,7 +17,6 @@ function renderAllShows(shows) {
   );
   const container = document.createElement("div");
   container.className = "shows-container";
-
   sortedShows.forEach((show) => {
     const card = document.createElement("div");
     card.className = "show-card";
@@ -25,8 +24,18 @@ function renderAllShows(shows) {
       <h3>${show.name}</h3>
       <img src="${show.image ? show.image.medium : ""}" alt="${show.name}">
       <p>${show.summary || ""}</p>
+       </div>
+    <div class="show-details">
+      <p class="genres"><strong>Genres:</strong> ${show.genres}</p>
+      <p class="status"><strong>Status:</strong> ${show.status || "Unknown"}</p>
+      <p class="rating"><strong>Rating:</strong> ${show.rating.average}</p>
+      <p class="runtime"><strong>Runtime:</strong> ${
+        show.runtime ? show.runtime + " minutes" : "N/A"
+      }</p>
+    </div>
+  </div>
     `;
-    // Optional: clicking a card selects the show
+    // clicking a card selects the show
     card.addEventListener("click", () => {
       document.getElementById("show-select").value = show.id;
       handleShowChange(show.id);
@@ -35,6 +44,7 @@ function renderAllShows(shows) {
   });
 
   root.appendChild(container);
+
   // update count for shows
   updateMatchCount(shows, "shows");
 }
