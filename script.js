@@ -31,7 +31,10 @@ function renderAllShows(shows) {
   });
 
   root.appendChild(container);
+  // update count for shows
+  updateMatchCount(shows, "shows");
 }
+
 // Get all shows from TVMaze using a web URL
 function fetchAllShows() {
   return fetch("https://api.tvmaze.com/shows")
@@ -104,7 +107,7 @@ function handleShowChange(showId) {
       .then((episodes) => {
         state.shows[showId].episodes = episodes;
         state.episodes = episodes;
-        state.selectedShow = showId;        
+        state.selectedShow = showId;
         setup();
       })
       .catch((err) => {
@@ -170,15 +173,22 @@ function render(episodes) {
   root.appendChild(container);
   root.appendChild(renderFooter());
 
-  updateMatchCount(episodes);
+  updateMatchCount(episodes, "episodes");
 }
 
 /**
  * Create and update the match count display element.
  */
-function updateMatchCount(filteredEpisodes) {
+function updateMatchCount(filteredItems, type = "episodes") {
+  console.log(type);
   const countElem = document.getElementById("match-count");
-  countElem.textContent = `Displaying ${filteredEpisodes.length} / ${state.episodes.length} episodes`;
+  if (type == "episodes") {
+    countElem.textContent = `Displaying ${filteredItems.length} / ${state.episodes.length} episodes`;
+  } else {
+    countElem.textContent = `Displaying ${filteredItems.length} / ${
+      Object.keys(state.shows).length
+    } shows`;
+  }
 }
 /**
  * Sets up the search input event listener.
