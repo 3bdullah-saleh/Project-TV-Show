@@ -22,16 +22,15 @@ function renderAllShows(shows) {
     card.className = "show-card";
     card.innerHTML = `
       <h3>${show.name}</h3>
+      <div class="show-content">
       <img src="${show.image ? show.image.medium : ""}" alt="${show.name}">
       <p>${show.summary || ""}</p>
        </div>
     <div class="show-details">
-      <p class="genres"><strong>Genres:</strong> ${show.genres}</p>
+      <p class="genres"><strong>Genres:</strong> ${show.genres.join(", ")}</p>
       <p class="status"><strong>Status:</strong> ${show.status || "Unknown"}</p>
       <p class="rating"><strong>Rating:</strong> ${show.rating.average}</p>
-      <p class="runtime"><strong>Runtime:</strong> ${
-        show.runtime ? show.runtime + " minutes" : "N/A"
-      }</p>
+      <p class="runtime"><strong>Runtime:</strong> ${show.runtime}</p>
     </div>
   </div>
     `;
@@ -44,6 +43,7 @@ function renderAllShows(shows) {
   });
 
   root.appendChild(container);
+  root.appendChild(renderFooter());
 
   // update count for shows
   updateMatchCount(shows, "shows");
@@ -144,7 +144,6 @@ function handleShowChange(showId) {
  */
 function setup() {
   render(state.episodes);
-  // setupSearch();
   setupSelect();
 }
 /**
