@@ -9,17 +9,18 @@ const state = {
 function renderAllShows(shows) {
   const root = document.getElementById("root");
   root.textContent = "";
-
+  const showSelect = document.getElementById("show-select");
+  showSelect.options[0].textContent = "Select a show...";
   const container = document.createElement("div");
   container.className = "shows-container";
 
-  shows.forEach(show => {
+  shows.forEach((show) => {
     const card = document.createElement("div");
     card.className = "show-card";
     card.innerHTML = `
       <h3>${show.name}</h3>
-      <img src="${show.image ? show.image.medium : ''}" alt="${show.name}">
-      <p>${show.summary || ''}</p>
+      <img src="${show.image ? show.image.medium : ""}" alt="${show.name}">
+      <p>${show.summary || ""}</p>
     `;
     // Optional: clicking a card selects the show
     card.addEventListener("click", () => {
@@ -48,10 +49,10 @@ function fetchAllShows() {
 }
 
 // Populate the show dropdown
- 
+
 function setupShowSelect(shows) {
   const select = document.getElementById("show-select");
-  select.innerHTML = `<option value="">Select a show...</option>`;
+  select.innerHTML = `<option value="all-shows">Select a show...</option>`;
 
   shows.forEach((show) => {
     const option = document.createElement("option");
@@ -64,9 +65,14 @@ function setupShowSelect(shows) {
       episodes: null,
     };
   });
-// cache the shows in the state
+  // cache the shows in the state
   select.addEventListener("change", (e) => {
     const showId = e.target.value;
+    if (showId === "all-shows") {
+      renderAllShows(shows);
+      state.selectedShow = null;
+      return;
+    }
     if (!showId) return;
     handleShowChange(showId);
   });
@@ -100,7 +106,11 @@ function handleShowChange(showId) {
   }
   // Reset search and episode dropdown
   document.getElementById("search-input").value = "";
-  document.getElementById("episode-select").innerHTML = `<option value="all">All episodes</option>`;
+  document.getElementById(
+    "episode-select"
+  ).innerHTML = `<option value="all">All episodes</option>`;
+  const showSelect = document.getElementById("show-select");
+  showSelect.options[0].textContent = "All shows";
 }
 
 /**
@@ -192,7 +202,7 @@ function setupSearch() {
 function setupSelect() {
   const select = document.getElementById("episode-select");
   select.innerHTML = `<option value="all">All Episodes</option>`;
-  
+
   // Populate dropdown
   state.episodes.forEach((ep) => {
     const option = document.createElement("option");
@@ -235,10 +245,9 @@ function renderFooter() {
 // shows are fetched and displayed in a dropdown
 // when a show is selected, its episodes are fetched and displayed
 window.onload = function () {
-  fetchAllShows()
-  .catch((error) => {
+  fetchAllShows().catch((error) => {
     const root = document.getElementById("root");
     root.textContent = "Sorry, failed to lead shows.";
-    console.error(error); 
+    console.error(error);
   });
-} 
+};
