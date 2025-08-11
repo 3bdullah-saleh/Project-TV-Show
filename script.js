@@ -11,10 +11,14 @@ function renderAllShows(shows) {
   root.textContent = "";
   const showSelect = document.getElementById("show-select");
   showSelect.options[0].textContent = "Select a show...";
+  // Sort shows alphabetically before rendering
+  const sortedShows = [...shows].sort((a, b) =>
+    a.name.toLowerCase().localeCompare(b.name.toLowerCase())
+  );
   const container = document.createElement("div");
   container.className = "shows-container";
 
-  shows.forEach((show) => {
+  sortedShows.forEach((show) => {
     const card = document.createElement("div");
     card.className = "show-card";
     card.innerHTML = `
