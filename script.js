@@ -228,7 +228,8 @@ function setupSearch() {
       const showFiltered = showArray.filter(
         (show) =>
           show.name.toLowerCase().includes(searchTerm) ||
-          (show.summary?.toLowerCase() || "").includes(searchTerm)
+          (show.summary?.toLowerCase() || "").includes(searchTerm) ||
+          (show.genres.join("").toLowerCase()).includes(searchTerm)
       );
       renderAllShows(showFiltered);
     }
