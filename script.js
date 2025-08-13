@@ -50,6 +50,9 @@ function fetchAllShows() {
 // Populate the show dropdown
  
 function setupShowSelect(shows) {
+  shows.sort((a, b) =>
+    a.name.toLowerCase().localeCompare(b.name.toLowerCase())
+  );
   const select = document.getElementById("show-select");
   select.innerHTML = `<option value="">Select a show...</option>`;
 
